@@ -71,12 +71,12 @@ The binary has a long main function which appears to be optimized and inlined C+
   
   The binary calls sub402980 to check the validity of the input length. This function does a bunch of somewhatnasty math which I don't want to reverse. Instead, I take advantage of the fact that the function only proceeds to memset if the length check succeeds:
 
-\begin{minted}{shell}
+\begin{minted}{bash}
 for ((i=1; i<100; i++));
-	do echo $i;
-	ltrace -ff ./npc
-	$(python -c "print 'hitcon{' + 'A'*$i + '}'") 2>&1
-	grep memset;
+    do echo $i;
+    ltrace -ff ./npc
+    $(python -c "print 'hitcon{' + 'A'*$i + '}'") 2>&1
+    grep memset;
 done
 \end{minted}
       
@@ -113,7 +113,7 @@ sub401FD0}.
 On first blush, this function looks complicated since it does a bunch of array lookups and recurses, but I
 realized it was just recursively inlined. The original function definition resembles the following:
 
-\begin{minted}{Cpp}
+\begin{minted}{cpp}
 int f(int **vec, int v) {
     int *x = &vec[0][v];
     if (v != *x) {
