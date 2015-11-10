@@ -1,0 +1,65 @@
+% This code includes small pieces from combine.cls and some other sources.
+% No guarantees of any kind given. Use at your own discretion.
+% Feel free to modify and distribute in any way you see fit.
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+\makeatletter
+\newenvironment{papers}{\renewcommand{\documentclass}[2][]{}%
+
+	\newcommand{\@@title}{}%
+	\newcommand{\@@subtitle}{}%
+	\newcommand{\@@author}{}%
+
+	\renewcommand{\usepackage}[2][]{}%
+	\renewenvironment{document}{\begingroup}{\endgroup}%
+
+	\renewcommand{\title}[1]{\renewcommand{\@title}{##1}\begingroup%
+		\renewcommand{\thanks}[1]{}\protected@xdef\@title{##1}
+		\endgroup}
+	\renewcommand{\subtitle}[1]{\renewcommand{\@subtitle}{##1}}%
+	\renewcommand{\author}[1]{\renewcommand{\@author}{##1}}
+	\renewcommand{\thanks}[1]{\symbolfootnote[1]{##1}}
+	\renewcommand{\maketitle}{
+	
+		\begin{center}
+			\setlength{\baselineskip}{16pt}
+			{\huge\bfseries\@title\\\vspace{.5em}}
+			{\itshape\@author}
+%			\\[20pt]
+
+		\end{center}
+		\markboth{\@@title}{\@author}%
+	  	\addcontentsline{toc}{chapter}{\@title\\\MakeUppercase{\@author}}%
+	  	\addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
+	  	\setcounter{section}{1}
+	  	\setcounter{footnote}{1}
+%	  	\setcounter{footnote}{1}\noindent%
+	  	\ignorespacesafterend}
+	
+%	\renewcommand{\maketitle}{
+%		\thispagestyle{empty}
+%		%\vspace*{1\baselineskip}
+%		\begin{center}\sf
+%			\LARGE\@title%
+%			\ifthenelse{\equal{\@@subtitle}{}}{
+%	    		%emtpy subtitle
+%			}{
+%				%not empty subtitle
+%				\bigskip
+%				\Large\@@subtitle
+%			}
+%			\bigskip
+%			%\large\@author%
+%		\end{center}%
+%	
+%		\markboth{\@@title}{\@author}%
+%	  	\addcontentsline{toc}{chapter}{\@title\\\MakeUppercase{\@author}}%
+%	  	\addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
+%	  	\setcounter{footnote}{1}\noindent%
+%	  	\ignorespacesafterend}
+}{
+}
+
+\makeatother

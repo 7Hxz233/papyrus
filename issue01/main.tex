@@ -1,0 +1,64 @@
+%!TEX program = xelatex
+\documentclass[a4paper, UTF8]{ctexbook}
+
+\usepackage{fontspec}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{mathrsfs}
+\usepackage{stmaryrd}
+\usepackage{color}
+\usepackage{ulem}
+\usepackage{lmodern}  
+\usepackage{fontenc}
+\usepackage{lipsum}
+\usepackage{setspace}
+\usepackage[margin=2cm]{geometry}
+\usepackage{titletoc}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usepackage[noblocks]{authblk}
+\usepackage[cache=false,outputdir=.texpadtmp]{minted}
+\usepackage{algpseudocode}
+\usepackage[eng,exjobb]{KTHEEtitlepage}
+
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\chapter*}{\section*}{}{}
+
+\usepackage{MyTitle}
+%------------------| 宏包参数设置区域 |-------------------------
+\input{conf/titletoc}        % 目录样式设置
+\graphicspath{{images/}{../images/}{./images/}}
+%------------------------------------------------------------
+
+%------------------|   自定义命令    |-------------------------
+\input{lib/override}
+\input{lib/extend}
+%------------------------------------------------------------
+
+\begin{document}
+
+
+\include{cover}      % 封面
+\include{preface}
+\include{toc}
+	
+	\part{比赛题解}
+	
+	\begin{papers}	
+		\include{articles/simple}
+		\include{articles/babyfirst}
+		\include{articles/npc}
+		\include{articles/puzzleng}
+		\include{articles/risky}
+		\include{articles/phishingme}
+	\end{papers}
+
+
+\end{document}
+
+
+

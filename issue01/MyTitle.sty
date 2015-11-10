@@ -1,0 +1,38 @@
+% Copyright note: This package defines how titles should
+% be typeset at the columbidae University
+% Please check for updates
+\ProvidesPackage{MyTitle}
+\RequirePackage{graphicx}
+\RequirePackage{minted}
+
+\renewcommand*{\maketitle}{%
+\begin{center}
+\setlength{\baselineskip}{22pt}
+
+{\huge\bfseries\@title\\\vspace{.5em}}
+
+{\itshape\@author}
+\\[20pt]
+
+\end{center}
+}
+
+\setminted{linenos,
+  			   xleftmargin=.1\textwidth,
+  			   xrightmargin=.1\textwidth,
+               framerule=0.8pt,
+               frame=lines,
+               framesep=2mm,
+               breaklines=true,
+               frame=lines}
+               
+\DefineVerbatimEnvironment{quizdesc}{Verbatim}
+		{frame=single,
+		 xleftmargin=.1\textwidth,
+  		 xrightmargin=.1\textwidth,}
+  		 
+\setlength{\parskip}{5pt}
+
+\titleformat{\section}[hang]{\bfseries\fontsize{16pt}{0pt}\selectfont}{\thesection}{.5em}{}{}
+
+\newcommand{\code}[1]{\texttt{#1}}

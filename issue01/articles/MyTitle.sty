@@ -1,0 +1,17 @@
+% Copyright note: This package defines how titles should
+% be typeset at the columbidae University
+% Please check for updates
+\ProvidesPackage{MyTitle}
+\RequirePackage{graphicx}
+
+\renewcommand*{\maketitle}{%
+\begin{center}
+\setlength{\baselineskip}{22pt}
+
+{\huge\bfseries\@title\\\vspace{.5em}}
+
+{\itshape\@author}
+\\[20pt]
+
+\end{center}
+}

